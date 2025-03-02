@@ -1,2 +1,2 @@
-# EchoLearn
-EchoLearn is multi-modal English learning platform.
+# PhonoEcho
+PhonoEcho is multi-modal English learning platform.
