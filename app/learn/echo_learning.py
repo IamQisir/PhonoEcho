@@ -18,13 +18,23 @@ from streamlit_extras.let_it_rain import rain
 import altair as alt
 from ai_chat import AIChat
 
+
 import sys
 import os
 # Ensure the tools directory is in the Python path
-sys.path.append(os.path.abspath("app/tools"))	
+sys.path.append(os.path.abspath("app/tools"))
+# add the PhonoEcho root directory to sys.path to import bhaptics
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from bhaptics import better_haptic_player as player	
 
 # Initialize global variables for storing radar chart per attempt and error types
 plt.rcParams["font.family"] = "MS Gothic"
+
+# Initialize bhaptics player
+player.initialize()
+# Register tact files (exported from bHaptics Designer - https://designer1.bhaptics.com/)
+player.register("RightGlove", "../../RightGlove.tact")
 
 # Function to get color based on score
 def get_color(score):
