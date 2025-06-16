@@ -11,13 +11,14 @@ import soundfile as sf
 import azure.cognitiveservices.speech as speechsdk
 from audio_recorder_streamlit import audio_recorder
 from streamlit_extras.grid import grid as extras_grid
+import streamlit.components.v1 as components
 from dataset import Dataset
 from datetime import datetime
 import traceback
 from streamlit_extras.let_it_rain import rain
 import altair as alt
 from ai_chat import AIChat
-
+import threading
 
 import sys
 import os
@@ -25,16 +26,29 @@ import os
 sys.path.append(os.path.abspath("app/tools"))
 # add the PhonoEcho root directory to sys.path to import bhaptics
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
 from bhaptics import better_haptic_player as player	
 
 # Initialize global variables for storing radar chart per attempt and error types
 plt.rcParams["font.family"] = "MS Gothic"
 
-# Initialize bhaptics player
-player.initialize()
-# Register tact files (exported from bHaptics Designer - https://designer1.bhaptics.com/)
-player.register("RightGlove", "../../RightGlove.tact")
+# Initialize the haptic player
+if "is_initialized" not in st.session_state:
+    player.initialize()
+    player.register("RightGlove", "RightGlove2.tact")
+    st.session_state.is_initialized = True
+if "play_count" not in st.session_state:
+    st.session_state.play_count = 0
+if "just_loaded" not in st.session_state:
+    st.session_state.just_loaded = True
+# Used to trigger re-render (state variable)
+if st.session_state.play_count != 0 and st.session_state.just_loaded:
+    st.session_state.play_count = 0
+st.session_state.just_loaded = False
+
+# Function to play the haptic feedback
+def play_tactglove():
+    player.submit_registered("RightGlove")
+    player.play_finished_event.wait()
 
 # Function to get color based on score
 def get_color(score):
@@ -423,12 +437,13 @@ def get_audio_from_mic_v2(user, selection):
     return None
 
 def course_navigation(my_grid, courses):
+    # the first row of my_grid
     # my_grid is the grid element of streamlit_exras
     # Initialize session state for course index
     if 'lesson_index' not in st.session_state:
         st.session_state.lesson_index = 0
     user = st.session_state.user
-    # Previous button
+    # Previous 
     if my_grid.button("◀ 前", disabled=st.session_state.lesson_index == 0, use_container_width=True):
         st.session_state.lesson_index -= 1
         user.load_scores_history(st.session_state.lesson_index)
@@ -454,6 +469,33 @@ def course_navigation(my_grid, courses):
     my_grid.info(f"{current_course}を練習しましょう😆👉 10回の練習が終わったら、アンケートを回答してください！[アンケート🫡]({questionnaire_address})")
 
     return current_course
+
+def video_and_tactglove(my_grid, selected_lessons):
+    # Video player
+    video_html = f"""
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <video id="myVideo" width="640" height="360" controls>
+                <source src="http://localhost:8000/database/learning_database/qi/{selected_lessons["video"]}" type="video/mp4">
+            </video>
+        </div>
+    """
+    play_version = st.session_state.play_count
+
+    if play_version > 0:
+        video_html += f"""
+        <script>
+            const video = document.getElementById("myVideo");
+            video.pause();
+            video.currentTime = 0;
+            video.load();
+            video.play();
+            video.onended = function() {{
+                console.log("Playback finished! Version: {play_version}");
+            }};
+        </script>
+        """
+    with my_grid.container(border=True):
+        components.html(video_html, height=400)
 
 def save_scores_to_json(user, lesson_index, scores_history):
     scores_dir = os.path.join(user.today_path, "scores")
@@ -779,7 +821,7 @@ def main():
     tab1, tab2 = st.tabs(['ラーニング', 'まとめ'])
     with tab1:
         # the layout of the grid structure
-        my_grid = extras_grid([0.1, 0.1, 0.8], [0.2, 0.8], 1, 1, [0.3, 0.7], 1, 1, vertical_align="center")
+        my_grid = extras_grid([0.1, 0.1, 0.8], 1, 1, 1, 1, [0.3, 0.7], 1, 1, vertical_align="center")
         # when using my_grid, we need the help of st to avoid wrong layout
         # we could load only some rows of my_grid, which is a useful trick
 
@@ -792,19 +834,25 @@ def main():
         "video": dataset.video_data[lesson_idx]
         }
 
-        # row2: video, text
-        my_grid.video(dataset.path + selected_lessons["video"])
-        with open(dataset.path + selected_lessons["text"], "r", encoding='utf-8') as f:
+        # row2: video, tacrglove
+        video_and_tactglove(my_grid, selected_lessons)
+        # my_grid.video(dataset.path + selected_lessons["video"])
+        
+        # the text_content will be used in pronunciation assessment
+        with open(os.path.join(dataset.path, selected_lessons["text"]), 'r', encoding='utf-8') as f:
             text_content = f.read()
-        # TODO: how to set the font and size?
-        my_grid.markdown(
-            f"""
-            <div style="text-align: left; font-size: 24px; font-weight: bold; color: #F0F0F0;">
-                {text_content}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+
+        # row2.5: play button
+        if my_grid.button("多感覚しよう!", use_container_width=True):
+            # click the button to play the tactglove and the video at the same time
+            st.session_state.play_count += 1
+            def delay_play_tactglove():
+                # delay the play of tactglove to ensure the video is ready
+                time.sleep(0.7)
+                play_tactglove()
+            threading.Thread(target=delay_play_tactglove, daemon=True).start()
+            # force reload the video
+            st.rerun()
 
         # row3: mic and learning button
         # main work will be done here
