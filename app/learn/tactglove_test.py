@@ -4,12 +4,14 @@ import streamlit as st
 import streamlit.components.v1 as components
 import threading
 
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from bhaptics import better_haptic_player as player
 
 if "is_initialized" not in st.session_state:
-    st.session_state.is_initialized = False
+    player.initialize()
+    player.register("RightGlove", "RightGlove.tact")
+    st.session_state.is_initialized = True
+
 if "play_count" not in st.session_state:
     st.session_state.play_count = 0
 if "just_loaded" not in st.session_state:
@@ -21,20 +23,13 @@ if st.session_state.play_count != 0 and st.session_state.just_loaded:
 
 st.session_state.just_loaded = False
 
-def play_tactglove(is_initialized_flag):
-    if not is_initialized_flag:
-        player.initialize()
-        player.register("RightGlove", "RightGlove.tact")
-        # 不能在子线程里设置 st.session_state
+def play_tactglove():
     player.submit_registered("RightGlove")
     player.play_finished_event.wait()
 
 if st.button("Play Video"):
     st.session_state.play_count += 1
-    is_initialized_flag = st.session_state.is_initialized
-    threading.Thread(target=play_tactglove, args=(is_initialized_flag,), daemon=True).start()
-    if not st.session_state.is_initialized:
-        st.session_state.is_initialized = True
+    threading.Thread(target=play_tactglove, daemon=True).start()
 
 # Use play counter in JS to force different code each time → trigger component refresh
 play_version = st.session_state.play_count
