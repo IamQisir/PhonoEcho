@@ -88,6 +88,7 @@ class User:
                         'AccuracyScore': [],
                         'FluencyScore': [],
                         'CompletenessScore': [],
+                        'ProsodyScore': [],
                         'PronScore': []
                     }
         else:
@@ -95,6 +96,7 @@ class User:
                 'AccuracyScore': [],
                 'FluencyScore': [],
                 'CompletenessScore': [],
+                'ProsodyScore': [],
                 'PronScore': []
             }
             
