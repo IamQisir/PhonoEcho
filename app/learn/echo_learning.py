@@ -30,12 +30,14 @@ from bhaptics import better_haptic_player as player
 
 # Initialize global variables for storing radar chart per attempt and error types
 plt.rcParams["font.family"] = "MS Gothic"
+with open(f"database/learning_database/{st.session_state.user.name}/tactglove_config.json", "r") as f:
+    tact_settings = json.load(f)
 
 # Initialize the haptic player
 if "is_initialized" not in st.session_state:
     player.initialize()
-    player.register("LeftGlove0", "tact_files/wav5_left.tact")
-    player.register("LeftGlove1", "tact_files/wav6_left.tact")
+    player.register("LeftGlove0", tact_settings["0"])
+    player.register("LeftGlove1", tact_settings["1"])
     st.session_state.is_initialized = True
 if "play_count" not in st.session_state:
     st.session_state.play_count = 0
