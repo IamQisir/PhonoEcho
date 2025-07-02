@@ -34,7 +34,8 @@ plt.rcParams["font.family"] = "MS Gothic"
 # Initialize the haptic player
 if "is_initialized" not in st.session_state:
     player.initialize()
-    player.register("RightGlove", "RightGlove2.tact")
+    player.register("LeftGlove0", "tact_files/wav5_left.tact")
+    player.register("LeftGlove1", "tact_files/wav6_left.tact")
     st.session_state.is_initialized = True
 if "play_count" not in st.session_state:
     st.session_state.play_count = 0
@@ -46,9 +47,21 @@ if st.session_state.play_count != 0 and st.session_state.just_loaded:
 st.session_state.just_loaded = False
 
 # Function to play the haptic feedback
-def play_tactglove():
-    player.submit_registered("RightGlove")
+def play_tactglove(lesson_index):
+    player.submit_registered(f"LeftGlove{lesson_index}")
     player.play_finished_event.wait()
+
+def delay_play_tactglove(delay, lesson_index):
+    """
+    Delay the play of tactglove to ensure the video is ready.
+    This function runs in a separate thread and should not access Streamlit context.
+    """
+    try:
+        time.sleep(delay)
+        play_tactglove(lesson_index)
+    except Exception as e:
+        # Log error but don't use Streamlit functions in thread
+        print(f"Error in delay_play_tactglove: {e}")
 
 # Function to get color based on score
 def get_color(score):
@@ -447,35 +460,39 @@ def course_navigation(my_grid, courses):
     if my_grid.button("◀ 前", disabled=st.session_state.lesson_index == 0, use_container_width=True):
         st.session_state.lesson_index -= 1
         user.load_scores_history(st.session_state.lesson_index)
+        st.session_state.play_count = 0  # Reset play count when navigating back
+        st.session_state.just_loaded = True  # Trigger re-render
         st.rerun()
             
     # Next button
     if my_grid.button("次 ▶", disabled=st.session_state.lesson_index == len(courses) - 1, use_container_width=True):
         st.session_state.lesson_index += 1
         user.load_scores_history(st.session_state.lesson_index)
+        st.session_state.play_count = 0  # Reset play count when navigating back
+        st.session_state.just_loaded = True  # Trigger re-render
         st.rerun()
-            
+    
     # Show current course name
     current_course = courses[st.session_state.lesson_index]
-    questionnaire_lst = [
-        "https://docs.google.com/forms/d/e/1FAIpQLSd4pu9pK-tZ6ETRH_dBQTqgE1KOj52I9c7j6AqKFH8IwG8v8w/viewform?usp=dialog",
-        "https://docs.google.com/forms/d/e/1FAIpQLSchcktzjBXCLhKVWvMScXGUHWCw96iJHnW6N2TC90LVMRNMhg/viewform?usp=dialog"
+    # questionnaire_lst = [
+    #     "https://docs.google.com/forms/d/e/1FAIpQLSd4pu9pK-tZ6ETRH_dBQTqgE1KOj52I9c7j6AqKFH8IwG8v8w/viewform?usp=dialog",
+    #     "https://docs.google.com/forms/d/e/1FAIpQLSchcktzjBXCLhKVWvMScXGUHWCw96iJHnW6N2TC90LVMRNMhg/viewform?usp=dialog"
 
-    ]
-    if st.session_state.lesson_index == 0:
-        questionnaire_address = questionnaire_lst[0]
-    elif st.session_state.lesson_index == 1:
-        questionnaire_address = questionnaire_lst[1]
-    my_grid.info(f"{current_course}を練習しましょう😆👉 10回の練習が終わったら、アンケートを回答してください！[アンケート🫡]({questionnaire_address})")
-
+    # ]
+    # if st.session_state.lesson_index == 0:
+    #     questionnaire_address = questionnaire_lst[0]
+    # elif st.session_state.lesson_index == 1:
+    #     questionnaire_address = questionnaire_lst[1]
+    # my_grid.info(f"{current_course}を練習しましょう😆👉 10回の練習が終わったら、アンケートを回答してください！[アンケート🫡]({questionnaire_address})")
+    my_grid.info("10回の練習は終わりましたら、実験実施者を呼びかけてください！")
     return current_course
 
-def video_and_tactglove(my_grid, selected_lessons):
+def video_and_tactglove(my_grid, text_content, selected_lessons):
     # Video player
     video_html = f"""
         <div style="display: flex; justify-content: center; align-items: center;">
             <video id="myVideo" width="640" height="360" controls>
-                <source src="http://localhost:8000/database/learning_database/qi/{selected_lessons["video"]}" type="video/mp4">
+                <source src="http://localhost:8000/database/learning_database/{st.session_state.user.name}/{selected_lessons["video"]}" type="video/mp4">
             </video>
         </div>
     """
@@ -494,8 +511,16 @@ def video_and_tactglove(my_grid, selected_lessons):
             }};
         </script>
         """
-    with my_grid.container(border=True):
-        components.html(video_html, height=400)
+    with my_grid.container(border=False):
+        components.html(video_html, height=360)
+    my_grid.markdown(
+        f"""
+        <div style="text-align: left; font-size: 24px; font-weight: bold; color: #F0F0F0;">
+            {text_content}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 def save_scores_to_json(user, lesson_index, scores_history):
     scores_dir = os.path.join(user.today_path, "scores")
@@ -709,24 +734,45 @@ def plot_detail_scores(data):
     return chart
 
 def plot_score_history():
-    if 'scores_history' not in st.session_state:
+    # Check if learning_state exists and has scores_history
+    if ('learning_state' not in st.session_state or 
+        'scores_history' not in st.session_state.learning_state):
         st.warning("まだ学習記録がありません")
         return
     
     lesson_index = st.session_state.lesson_index
     
-    if lesson_index not in st.session_state.scores_history:
+    if lesson_index not in st.session_state.learning_state['scores_history']:
         st.warning(f"レッスン {lesson_index + 1} の記録がありません")
         return
     
     # Check if data exists
-    scores = st.session_state.scores_history[lesson_index]
+    scores = st.session_state.learning_state['scores_history'][lesson_index]
     if not any(scores.values()):  # Check if all score lists are empty
+        st.warning("まだ学習記録がありません")
+        return
+    
+    # Ensure all arrays have the same length before creating DataFrame
+    max_length = max(len(v) for v in scores.values() if v)
+    if max_length == 0:
+        st.warning("まだ学習記録がありません")
+        return
+    
+    # Pad shorter arrays with None or use only the minimum length
+    min_length = min(len(v) for v in scores.values() if v)
+    
+    # Create a clean scores dict with consistent lengths
+    clean_scores = {}
+    for key, value_list in scores.items():
+        if value_list:  # Only include non-empty lists
+            clean_scores[key] = value_list[:min_length]  # Truncate to minimum length
+    
+    if not clean_scores or min_length == 0:
         st.warning("まだ学習記録がありません")
         return
         
     # Create DataFrame only if we have data
-    data = pd.DataFrame(scores)
+    data = pd.DataFrame(clean_scores)
     if len(data) == 0:
         st.warning("まだ学習記録がありません")
         return
@@ -821,7 +867,7 @@ def main():
     tab1, tab2 = st.tabs(['ラーニング', 'まとめ'])
     with tab1:
         # the layout of the grid structure
-        my_grid = extras_grid([0.1, 0.1, 0.8], 1, 1, 1, 1, [0.3, 0.7], 1, 1, vertical_align="center")
+        my_grid = extras_grid([0.1, 0.1, 0.8], [0.3, 0.7], 1, 1, 1, [0.3, 0.7], 1, 1, vertical_align="center")
         # when using my_grid, we need the help of st to avoid wrong layout
         # we could load only some rows of my_grid, which is a useful trick
 
@@ -835,22 +881,19 @@ def main():
         }
 
         # row2: video, tacrglove
-        video_and_tactglove(my_grid, selected_lessons)
-        # my_grid.video(dataset.path + selected_lessons["video"])
-        
         # the text_content will be used in pronunciation assessment
         with open(os.path.join(dataset.path, selected_lessons["text"]), 'r', encoding='utf-8') as f:
             text_content = f.read()
-
+        video_and_tactglove(my_grid, text_content, selected_lessons)
+        # my_grid.video(dataset.path + selected_lessons["video"])
+        
         # row2.5: play button
-        if my_grid.button("多感覚しよう!", use_container_width=True):
+        if my_grid.button("多感覚学習しよう!", use_container_width=True):
             # click the button to play the tactglove and the video at the same time
             st.session_state.play_count += 1
-            def delay_play_tactglove():
-                # delay the play of tactglove to ensure the video is ready
-                time.sleep(0.7)
-                play_tactglove()
-            threading.Thread(target=delay_play_tactglove, daemon=True).start()
+            # Get delay_time from session state with default fallback
+            delay = getattr(st.session_state, 'delay_time', 0.5)
+            threading.Thread(target=delay_play_tactglove, args=(delay, lesson_idx), daemon=True).start()
             # force reload the video
             st.rerun()
 

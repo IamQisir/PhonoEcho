@@ -137,6 +137,12 @@ else:
 # Set the header of sidebar and run the main page
 st.sidebar.header("PhonoEchoへようこそ! 😊")
 if st.session_state.logged_in:
-    st.sidebar.markdown("すべての練習が終わったら、下記のアンケートを回答してください！")
-    st.sidebar.markdown("[最終のアンケート🫡](https://docs.google.com/forms/d/e/1FAIpQLSfNu5vK-SN0ZY43DoBDz48xTyVH4JtkHEsJln5I2gDeNqhIeA/viewform?usp=dialog)")
+    st.sidebar.markdown("まず、アバターとTactGloveの同期性を確認しましょう！")
+    delay_time = st.sidebar.number_input(
+        "TactGloveを...秒遅らせる", value=0.5, placeholder="タイムラグがなくなるようにしてください（例：0.01~1.0秒）",
+        min_value=0.01, max_value=1.0, step=0.01
+    )
+    # Store delay_time in session state for use in other pages
+    st.session_state.delay_time = delay_time
+    
 pg.run()
