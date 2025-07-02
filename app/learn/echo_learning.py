@@ -942,6 +942,7 @@ def main():
                     st.session_state['learning_data']['waveform_plot'] = waveform_plot
                     st.session_state['learning_data']['error_table'] = error_table
                     st.session_state['learning_data']['syllable_table'] = syllable_table
+                    st.session_state['learning_data']['practice_text'] = text_content
 
                     # Data for AI
                     st.session_state['ai_initial_input'] = error_table
@@ -983,11 +984,23 @@ def main():
         # feedback from AI
 
         with st.chat_message('AI'):
-            if 'learning_state' not in st.session_state or not st.session_state.learning_state['current_errors']:
+            if 'learning_state' not in st.session_state:
                 st.write("練習を始めましょう！")
             elif if_started:
                 st.write("GPTによる発音のアドバイス:")
-                feedback = ai_chat.get_chat_response(st.session_state.learning_state['current_errors'])
+                # Get practice text and score summary for AI
+                practice_text = st.session_state.get('learning_data', {}).get('practice_text', text_content)
+                overall_score = st.session_state.get('learning_data', {}).get('overall_score')
+                score_summary = ai_chat.format_score_summary(overall_score) if overall_score else None
+                
+                # Get current errors, or use empty dict if none
+                current_errors = st.session_state.learning_state.get('current_errors', {})
+                
+                feedback = ai_chat.get_chat_response(
+                    current_errors,
+                    practice_text=practice_text,
+                    score_summary=score_summary
+                )
                 if feedback:
                     st.write(feedback)
             else:
