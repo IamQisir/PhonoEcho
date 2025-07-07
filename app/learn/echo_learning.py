@@ -966,7 +966,7 @@ def main():
             my_grid.markdown(st.session_state['learning_data']['syllable_table'], unsafe_allow_html=True)
         
         # if overall score is higher than 80, rain the balloons
-        if overall_score and overall_score['PronScore'] >= 90:
+        if overall_score and overall_score['PronScore'] >= 95:
             rain(
             emoji="🥳🎉",
             font_size=54,
