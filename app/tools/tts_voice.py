@@ -77,5 +77,5 @@ def process_txt_files(input_dir: str, output_dir: str) -> None:
 
 # Example usage
 if __name__ == "__main__":
-    folder_path = r"E:\Code\EchoLearn\database\learning_database\backup"
-    process_txt_files(folder_path, folder_path)
+    input_string = "The Sydney Opera House is shaped like a series of white, sail-like shells rising by the harbor."
+    generate_azure_tts(input_string, "context-gesture-sydney_opera_house.wav")
