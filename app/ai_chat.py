@@ -8,7 +8,7 @@ class AIChat:
             self.client = AzureOpenAI(
                 azure_endpoint=st.secrets['AzureGPT']["AZURE_OPENAI_ENDPOINT"],
                 api_key=st.secrets['AzureGPT']["AZURE_OPENAI_API_KEY"],
-                api_version="2024-02-15-preview"
+                api_version="2024-12-01-preview"
             )
         except Exception as e:
             st.warning(f"Error initializing Azure OpenAI: {str(e)}")
@@ -97,14 +97,12 @@ class AIChat:
         
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-5-mini",  # Update with your actual deployment name
                 messages=[
                     {"role": "system", "content": "You are a helpful English pronunciation tutor."},
                     {"role": "user", "content": self.prompt}
                 ],
-                stream=True,
-                temperature=0.7,
-                max_tokens=800
+                stream=True
             )
             
             # Add validation for response
