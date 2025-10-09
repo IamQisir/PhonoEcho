@@ -984,9 +984,14 @@ def main():
         # feedback from AI
 
         with st.chat_message('AI'):
+            # Check if we have any learning data to show feedback for
+            has_learning_data = (
+                st.session_state.get('learning_data', {}).get('overall_score') is not None
+            )
+            
             if 'learning_state' not in st.session_state:
                 st.write("練習を始めましょう！")
-            elif if_started:
+            elif has_learning_data:
                 st.write("GPTによる発音のアドバイス:")
                 # Get practice text and score summary for AI
                 practice_text = st.session_state.get('learning_data', {}).get('practice_text', text_content)
@@ -1002,7 +1007,7 @@ def main():
                     score_summary=score_summary
                 )
                 if feedback:
-                    st.write(feedback)
+                    st.write_stream(feedback)
             else:
                 st.write("まだ頑張りましょう！")
 main()
