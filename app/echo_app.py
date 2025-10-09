@@ -23,18 +23,60 @@ def save_user_info(user_info):
 # Load user_info as a global variable
 
 st.logo(image="logo/PhonoEcho.png", icon_image="logo/PhonoEcho.png")
+
+# Fix for Streamlit 1.44.1 - Updated CSS selectors for logo sizing
 st.markdown(
     """
     <style>
-        div[data-testid="stSidebarHeader"] > img, div[data-testid="collapsedControl"] > img {
-            height: 6rem;
-            width: auto;
+        /* Fix logo size in sidebar header */
+        [data-testid="stSidebarHeader"] > img,
+        [data-testid="stSidebarHeader"] img,
+        section[data-testid="stSidebar"] [data-testid="stImage"],
+        section[data-testid="stSidebar"] [data-testid="stImage"] img {
+            height: 6rem !important;
+            width: auto !important;
+            max-height: 6rem !important;
         }
         
-        div[data-testid="stSidebarHeader"], div[data-testid="stSidebarHeader"] > *,
-        div[data-testid="collapsedControl"], div[data-testid="collapsedControl"] > * {
-            display: flex;
-            align-items: center;
+        /* Fix collapsed sidebar icon size */
+        [data-testid="collapsedControl"] > img,
+        [data-testid="collapsedControl"] img {
+            height: 3rem !important;
+            width: auto !important;
+            max-height: 3rem !important;
+        }
+        
+        /* Center align logo */
+        [data-testid="stSidebarHeader"],
+        [data-testid="stSidebarHeader"] > *,
+        [data-testid="collapsedControl"],
+        [data-testid="collapsedControl"] > * {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        /* Fix for Streamlit 1.44+ navigation styling */
+        [data-testid="stSidebarNav"] {
+            padding-top: 1rem;
+        }
+        
+        /* Reduce top padding/margin to make page more compact */
+        .block-container {
+            padding-top: 2rem !important;
+            padding-bottom: 2rem !important;
+        }
+        
+        /* Reduce space above title - only for main app, not login */
+        div[data-testid="stAppViewContainer"] h1:not(:first-child) {
+            margin-top: 1rem !important;
+            padding-top: 1rem !important;
+        }
+        
+        /* Reduce tab spacing */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 0.5rem;
+            padding-top: 0.5rem;
         }
     </style>
     """,
@@ -54,12 +96,27 @@ if "learning_data" not in st.session_state:
         'syllable_table': None
     }
 
+
+@st.cache_data(ttl=3600)
+def load_logo_base64(logo_path: str) -> str:
+    """
+    Load and cache logo file as base64 to avoid repeated file reads
+    
+    Args:
+        logo_path: Path to the logo file
+    
+    Returns:
+        str: Base64 encoded logo data
+    """
+    with open(logo_path, "rb") as f:
+        contents = f.read()
+        return base64.b64encode(contents).decode("utf-8")
+
+
 def login():
     _, cent_co, _ = st.columns([0.2, 0.7, 0.1])
     with cent_co:
-        with open("logo/PhonoEcho.gif", "rb") as f:
-            contents = f.read()
-            data_url = base64.b64encode(contents).decode("utf-8")
+        data_url = load_logo_base64("logo/PhonoEcho.gif")
         st.markdown(
             f'<img src="data:image/gif;base64,{data_url}" alt="cat gif" class="center">',
             unsafe_allow_html=True,
@@ -82,9 +139,7 @@ def login():
 def register():
     _, cent_co, _ = st.columns([0.2, 0.7, 0.1])
     with cent_co:
-        with open("logo/EchoLearn.gif", "rb") as f:
-            contents = f.read()
-            data_url = base64.b64encode(contents).decode("utf-8")
+        data_url = load_logo_base64("logo/EchoLearn.gif")
         st.markdown(
             f'<img src="data:image/gif;base64,{data_url}" alt="cat gif" class="center">',
             unsafe_allow_html=True,

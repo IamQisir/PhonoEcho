@@ -1,0 +1,151 @@
+import asyncio
+from pathlib import Path
+import imageio.v2 as imageio
+from playwright.async_api import async_playwright
+
+OUTPUT_DIR = Path("sammy_consonant_gifs")
+FRAMES = 1  # static posture (set >1 if you want simple 2-step animations)
+FPS = 12
+PAUSE_FRAMES = 8  # hold the final frame for readability
+
+URL = "https://incl.pl/sammy/"  # or a local file:// path to your saved HTML
+
+# Each “pose” is a dict of which radios to check by CSS selector.
+# You can add many targets here; below are examples for some English consonants.
+POSES = {
+    # /s/  (voiceless alveolar fricative, oral, spread lips)
+    "s": [
+        "input#voiceless",  # vocal folds: voiceless
+        "input#oral",  # velum: oral
+        "input#spread",  # lips: spread
+        "input#sz",  # tongue: alveolar fricative (value="12")
+    ],
+    # /z/  (voiced alveolar fricative)
+    "z": [
+        "input#voiced",
+        "input#oral",
+        "input#spread",
+        "input#sz",
+    ],
+    # /θ/  (voiceless dental fricative)
+    "θ": [
+        "input#voiceless",
+        "input#oral",
+        "input#spread",
+        "input#theta",  # dental fricative (value="11")
+    ],
+    # /ð/  (voiced dental fricative)
+    "ð": [
+        "input#voiced",
+        "input#oral",
+        "input#spread",
+        "input#theta",
+    ],
+    # /ʃ/  (voiceless postalveolar fricative)
+    "ʃ": [
+        "input#voiceless",
+        "input#oral",
+        "input#spread",
+        "input#esh",  # postalveolar fricative (value="14")
+    ],
+    # /l/ approximant isn’t directly modeled; you can approximate with alveolar “stop” + voiced oral + spread lips
+    "l_approx_like": [
+        "input#voiced",
+        "input#oral",
+        "input#spread",
+        "input#td",  # alveolar stop (value="22") — illustrative only
+    ],
+    # Bilabial stop /p/ (voiceless) – use lips “blstop”
+    "p": [
+        "input#voiceless",
+        "input#oral",
+        "input#blstop",  # bilabial stop (lips)
+        "input#rest",  # tongue rest
+    ],
+    # Bilabial stop /b/ (voiced)
+    "b": [
+        "input#voiced",
+        "input#oral",
+        "input#blstop",
+        "input#rest",
+    ],
+    # Labiodental fricative /f/ (voiceless)
+    "f": [
+        "input#voiceless",
+        "input#oral",
+        "input#blfric",  # bilabial fricative label is used; page maps to labial fricatives in transcription
+        "input#rest",
+    ],
+    # Velar stop /k/ (voiceless)
+    "k": [
+        "input#voiceless",
+        "input#oral",
+        "input#spread",
+        "input#kg",  # velar stop (value="26")
+    ],
+    # Velar stop /g/ (voiced)
+    "g": [
+        "input#voiced",
+        "input#oral",
+        "input#spread",
+        "input#kg",
+    ],
+}
+
+
+async def check_radios(page, selectors):
+    for sel in selectors:
+        # use .check() where possible; fallback to click
+        el = page.locator(sel)
+        await el.wait_for(state="visible", timeout=3000)
+        # Some are <input type=radio>, so element.check() is nice; but click is fine too.
+        try:
+            await el.check()
+        except:
+            await el.click()
+
+
+async def run():
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch()
+        ctx = await browser.new_context(
+            viewport={"width": 1280, "height": 900}, device_scale_factor=2
+        )
+        page = await ctx.new_page()
+        await page.goto(URL, wait_until="load")
+        await page.wait_for_timeout(500)
+
+        # Force SVG images (matches your HTML: id="svg")
+        try:
+            await page.locator("input#svg").check()
+        except:
+            pass
+
+        # The main composite image block
+        sammy = page.locator("#Sammy")
+        await sammy.wait_for(state="visible", timeout=5000)
+
+        for symbol, steps in POSES.items():
+            frames = []
+            # “Animate” by re-checking after slight delays if FRAMES>1; otherwise one shot
+            for f in range(FRAMES):
+                await check_radios(page, steps)
+                await page.wait_for_timeout(40)
+                png = await sammy.screenshot(type="png")
+                frames.append(png)
+            if PAUSE_FRAMES:
+                frames.extend([frames[-1]] * PAUSE_FRAMES)
+
+            # Save GIF
+            out = OUTPUT_DIR / f"{symbol}.gif"
+            imgs = [imageio.imread(b) for b in frames]
+            imageio.mimsave(out, imgs, duration=1 / max(FPS, 1))
+            print(f"[saved] {out}")
+
+        await ctx.close()
+        await browser.close()
+
+
+if __name__ == "__main__":
+    asyncio.run(run())
