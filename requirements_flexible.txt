@@ -1,0 +1,29 @@
+# Core Framework
+streamlit>=1.50.0
+streamlit-advanced-audio>=0.1.2
+
+# AI/ML
+openai>=2.3.0
+scikit-learn>=1.7.0
+pandas>=2.3.0
+numpy>=2.3.0,<3.0.0
+
+# Audio Processing
+librosa>=0.11.0
+soundfile>=0.13.0
+audioread>=3.0.0
+azure-cognitiveservices-speech>=1.46.0
+
+# Visualization
+matplotlib>=3.10.0
+altair>=5.5.0
+
+# Testing
+pytest>=8.4.0
+pytest-cov>=7.0.0
+
+# Utilities
+tqdm>=4.67.0
+requests>=2.32.0
+pillow>=11.3.0
+GitPython>=3.1.0
