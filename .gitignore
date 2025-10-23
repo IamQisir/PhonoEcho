@@ -1,3 +1,5 @@
 .streamlit
 database
+app/__pycache__
+
 
