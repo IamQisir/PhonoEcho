@@ -67,18 +67,21 @@ def delay_play_tactglove(delay, lesson_index):
 
 # Function to get color based on score
 def get_color(score):
-    if score >= 90:
-        # green
-        return "#00ff00"
-    elif score >= 70:
-        # yellow
-        return "#ffc000"
+    if score is None:
+        # omitted words
+        return "#ff8c00"  # orange
+    elif score >= 80:
+        # high proficiency
+        return "#006400"  # dark green
     elif score >= 60:
-        # orange
-        return "#ff4b4b"
+        # satisfactory performance
+        return "#90ee90"  # light green
+    elif score >= 40:
+        # moderate proficiency
+        return "#ffff00"  # yellow
     else:
-        # red
-        return "#ff0000"
+        # needing significant improvement (0-39)
+        return "#ff0000"  # red
 
 def create_radar_chart(pronunciation_result):
     """
