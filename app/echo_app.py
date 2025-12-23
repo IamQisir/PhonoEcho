@@ -139,7 +139,7 @@ st.sidebar.header("PhonoEchoへようこそ! 😊")
 if st.session_state.logged_in:
     st.sidebar.markdown("まず、アバターとTactGloveの同期性を確認しましょう！")
     delay_time = st.sidebar.number_input(
-        "TactGloveの振動提示を〇〇秒遅らせる：", value=0.5, placeholder="タイムラグがなくなるようにしてください（例：0.01~1.0秒）",
+        "TactGloveの振動提示を〇〇秒遅らせる：", value=0.3, placeholder="タイムラグがなくなるようにしてください（例：0.01~1.0秒）",
         min_value=0.01, max_value=1.0, step=0.01
     )
     # Store delay_time in session state for use in other pages

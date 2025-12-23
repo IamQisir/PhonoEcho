@@ -894,7 +894,7 @@ def main():
             # click the button to play the tactglove and the video at the same time
             st.session_state.play_count += 1
             # Get delay_time from session state with default fallback
-            delay = getattr(st.session_state, 'delay_time', 0.5)
+            delay = getattr(st.session_state, 'delay_time', 0.3)
             threading.Thread(target=delay_play_tactglove, args=(delay, lesson_idx), daemon=True).start()
             # force reload the video
             st.rerun()
