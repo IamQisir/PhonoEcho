@@ -9,6 +9,7 @@ st.set_page_config(layout="wide", page_icon="logo/done_all.png")
 
 # Function to load user_info from a JSON file
 def load_user_info():
+    """Load the shared user info JSON from disk."""
     try:
         with open("database/all_users/users_info.json", "r") as f:
             return json.load(f)
@@ -17,6 +18,7 @@ def load_user_info():
 
 # Function to save user_info to a JSON file
 def save_user_info(user_info):
+    """Persist the shared user info JSON to disk."""
     with open("database/all_users/users_info.json", "w") as f:
         json.dump(user_info, f, indent=4)
     
@@ -55,6 +57,7 @@ if "learning_data" not in st.session_state:
     }
 
 def login():
+    """Render the login view and authenticate a user."""
     _, cent_co, _ = st.columns([0.2, 0.7, 0.1])
     with cent_co:
         with open("logo/PhonoEcho.gif", "rb") as f:
@@ -80,6 +83,7 @@ def login():
                 st.switch_page(learning_page)
             
 def register():
+    """Render the registration view and create a new user."""
     _, cent_co, _ = st.columns([0.2, 0.7, 0.1])
     with cent_co:
         with open("logo/EchoLearn.gif", "rb") as f:
@@ -105,6 +109,7 @@ def register():
                 st.switch_page(login_page)
 
 def logout():
+    """Clear session state and rerun the app after logout."""
     # After logging out, delete all the keys of st.session_state
     for key in st.session_state.keys():
         del st.session_state[key]

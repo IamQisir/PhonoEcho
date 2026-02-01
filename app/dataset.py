@@ -6,6 +6,7 @@ class Dataset:
     """
     root_path = "database/learning_database/"
     def __init__(self, user_name:str) -> None:
+        """Initialize dataset paths and in-memory file lists."""
         # create the folder for the specific user
         self.path = self.root_path + f"{user_name}/"
         # name of text and video
@@ -13,6 +14,7 @@ class Dataset:
         self.video_data = []
     
     def build_dirs(self):
+        """Create user-specific dataset directories if missing."""
         # build text and video folder for a user
         # this method seems a little meaningless
         try:
@@ -21,6 +23,7 @@ class Dataset:
             print("Failed to build the directories!")
 
     def load_data(self):
+        """Load text and video filenames from the dataset folder."""
         for root, dirs, files in os.walk(self.path):
             for f in files:
                 if f.endswith('.txt'):

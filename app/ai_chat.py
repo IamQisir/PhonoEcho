@@ -3,7 +3,9 @@ import streamlit as st
 from openai import AzureOpenAI
 
 class AIChat:
+    """Azure OpenAI chat helper for pronunciation feedback."""
     def __init__(self):
+        """Initialize the Azure OpenAI client and prompt buffer."""
         try:
             self.client = AzureOpenAI(
                 azure_endpoint=st.secrets['AzureGPT']["AZURE_OPENAI_ENDPOINT"],

@@ -6,6 +6,7 @@ from datetime import datetime
 from datetime import date
 
 class User:
+    """Represent a user profile and manage auth/history storage."""
     user_info_path = "database/all_users/users_info.json"
     info_folder = "database/all_users/"
     user_info = {}
@@ -15,6 +16,7 @@ class User:
         user_info = json.load(f)
     
     def __init__(self, name:str, password:str) -> None:
+        """Initialize the user, hash password, and ensure folders exist."""
         self.name = name
         # hash the password to ensure the cybersecurity
         self.password = User.hash_password(password)
@@ -29,10 +31,12 @@ class User:
             os.makedirs(self.today_path, exist_ok=False)
     
     def __hash__(self):
+        """Provide a stable hash based on the unique username."""
         # suppose user's name is unique
         return hash(self.name)
 
     def save_to_user_info(self) -> None:
+        """Persist the user record to the shared user info file."""
         # update the user_info like registering a new user
         User.user_info[self.name] = {
             "password": self.password,
@@ -42,6 +46,7 @@ class User:
             json.dump(User.user_info, f, indent=4)
 
     def save_pron_history(self, selection:str, pronunciation_result:str):
+        """Save a pronunciation result JSON for the current session."""
         # save all the user's practice history
         # if the folder already exists, don't rewrite it 
         # create the history folder of today within the folder of self.practice_history
@@ -51,6 +56,7 @@ class User:
     
     @classmethod
     def register(cls, name:str, password:str):
+        """Register a new user and create storage if the name is free."""
         # check if the user already existed 
         if name in cls.user_info:
             st.warning("ユーザーは既に存在しています!")
@@ -68,6 +74,7 @@ class User:
         return new_user
     
     def load_scores_history(self, lesson_index: int):
+        """Load score history for a lesson into session state."""
         scores_dir = os.path.join(self.today_path, "scores")
         json_file = os.path.join(scores_dir, "lesson_scores.json")
         
@@ -99,7 +106,7 @@ class User:
             }
             
     def load_errors_history(self, lesson_index: int):
-        """Load error history for specified lesson"""
+        """Load error history for a lesson into session state."""
         scores_dir = os.path.join(self.today_path, "scores")
         error_file = os.path.join(scores_dir, "error_history.json")
         
@@ -125,6 +132,7 @@ class User:
 
     @classmethod
     def login(cls, name:str, password:str):
+        """Authenticate and return a User instance when credentials match."""
         if name in User.user_info:
             if User.check_password(User.user_info[name]['password'], password):
                 # user's folder has been already created when in registration
@@ -133,10 +141,12 @@ class User:
         
     @staticmethod
     def hash_password(password, rounds=12):
+        """Hash a plaintext password with bcrypt."""
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds)).decode()
     
     @staticmethod
     def check_password(hashed_password, user_password):
+        """Verify a plaintext password against a bcrypt hash."""
         return bcrypt.checkpw(user_password.encode(), hashed_password.encode())
     
 

@@ -18,9 +18,11 @@ API_VERSION = "2024-04-15-preview"
 SUBSCRIPTION_KEY = st.secrets["Azure_Avatar"]["SUBSCRIPTION_KEY"]
 
 def _create_job_id():
+    """Return a new UUID string for a synthesis job."""
     return str(uuid.uuid4())
 
 def _authenticate():
+    """Build request headers for Azure authentication."""
     if PASSWORDLESS_AUTHENTICATION:
         credential = DefaultAzureCredential()
         token = credential.get_token('https://cognitiveservices.azure.com/.default')
@@ -29,6 +31,7 @@ def _authenticate():
         return {'Ocp-Apim-Subscription-Key': SUBSCRIPTION_KEY}
 
 def submit_synthesis(text_input):
+    """Submit an avatar synthesis job and return the job ID."""
     job_id = _create_job_id()
     url = f'{SPEECH_ENDPOINT}/avatar/batchsyntheses/{job_id}?api-version={API_VERSION}'
     header = {
@@ -66,6 +69,7 @@ def submit_synthesis(text_input):
         return None
 
 def get_synthesis(job_id):
+    """Fetch job status or the result URL for a synthesis job."""
     url = f'{SPEECH_ENDPOINT}/avatar/batchsyntheses/{job_id}?api-version={API_VERSION}'
     header = _authenticate()
 
@@ -81,6 +85,7 @@ def get_synthesis(job_id):
         return None
 
 def download_video(url):
+    """Download a video from a URL and save it locally."""
     logger.info(f'Attempting to download video from {url}')
     response = requests.get(url)
     if response.status_code == 200:
@@ -94,6 +99,7 @@ def download_video(url):
         return None
 
 def generate_avatar_video(text_input):
+    """Run the synthesis job and return the downloaded video path."""
     logger.info(f'Generating avatar video for text: "{text_input}"')
     job_id = submit_synthesis(text_input)
     if job_id is None:

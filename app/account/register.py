@@ -11,6 +11,7 @@ with open(yaml_path) as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 def show_register_page():
+    """Render the registration form and persist new credentials."""
     st.header("Create New Account")
     with st.form("signup_form"):
         new_username = st.text_input("Username")

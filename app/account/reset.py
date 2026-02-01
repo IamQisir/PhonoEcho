@@ -11,6 +11,7 @@ with open(yaml_path) as file:
     config = yaml.load(file, Loader=SafeLoader)
 
 def show_forgot_password_page():
+    """Render the password reset form and update stored credentials."""
     st.header("Reset Password")
     with st.form("reset_password_form"):
         username = st.text_input("Username")

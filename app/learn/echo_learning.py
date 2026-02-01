@@ -28,6 +28,7 @@ plt.rcParams["font.family"] = "MS Gothic"
 
 # Function to get color based on score
 def get_color(score):
+    """Map a numeric score to a display color."""
     if score >= 90:
         # green
         return "#00ff00"
@@ -119,6 +120,7 @@ def create_radar_chart(pronunciation_result):
     return fig
 
 def create_waveform_plot(audio_file, pronunciation_result):
+    """Plot the waveform and annotate words/phonemes with score colors."""
     y, sr = librosa.load(audio_file)
     duration = len(y) / sr
 
@@ -196,6 +198,7 @@ def create_waveform_plot(audio_file, pronunciation_result):
     return fig
 
 def pronunciation_assessment(audio_file, reference_text):
+    """Run Azure Speech pronunciation assessment for a recorded file."""
     print("進入 pronunciation_assessment 関数")
 
     # Be Aware!!! We are using free keys here but nonfree keys in Avatar
@@ -257,15 +260,16 @@ def collect_errors(pronunciation_result):
         "間の欠如 (MissingBreak)": {'count': 0, 'words': []},
         "単調 (Monotone)": {'count': 0, 'words': []}
     }
-    
+
     error_mapping = {
         "Omission": "省略 (Omission)",
         "Insertion": "挿入 (Insertion)",
-        "Mispronunciation": "発音ミス (Mispronunciation)",
-        "UnexpectedBreak": "不適切な間 (UnexpectedBreak)",
-        "MissingBreak": "間の欠如 (MissingBreak)",
-        "Monotone": "単調 (Monotone)"
+        "Mispronunciation": "発音誤り (Mispronunciation)",
+        "UnexpectedBreak": "予期しない区切り (UnexpectedBreak)",
+        "MissingBreak": "区切りの欠如 (MissingBreak)",
+        "Monotone": "単調な発話 (Monotone)"
     }
+    error_data = {label: {"count": 0, "words": []} for label in error_mapping.values()}
     
     words = pronunciation_result["NBest"][0]["Words"]
     for word in words:
@@ -275,7 +279,7 @@ def collect_errors(pronunciation_result):
                 jp_error = error_mapping[error_type]
                 error_data[jp_error]['count'] += 1
                 error_data[jp_error]['words'].append(word["Word"])
-    
+
     return error_data
 
 # Function to create error statistics table
@@ -329,6 +333,7 @@ def create_doughnut_chart(data, title):
     )
 
 def create_syllable_table(pronunciation_result):
+    """Build an HTML table of word and phoneme accuracy scores."""
     output = """
     <style>
         table { border-collapse: collapse; width: 100%; }
@@ -356,7 +361,7 @@ def create_syllable_table(pronunciation_result):
         else:
             output += word_text
 
-        output += f"</td><td style='background-color: {color};'>{accuracy_score:.2f}</td></tr>"
+        output += f"</td><td style='background-color: {color}; color: black;'>{accuracy_score:.2f}</td></tr>"
 
     output += "</table>"
     return output
@@ -373,6 +378,7 @@ def get_audio_from_mic(user, selection) -> str:
     def save_audio_bytes_to_wav(
         audio_bytes, output_filename, sample_rate=sample_rate, channels=1
     ):
+        """Write raw audio bytes to a WAV file."""
         # Convert audio_bytes to a numpy array
         audio_data, sr = sf.read(io.BytesIO(audio_bytes), dtype="int16")
         # Save the numpy array to a .wav file
@@ -394,6 +400,7 @@ def get_audio_from_mic(user, selection) -> str:
         return file_name
 
 def save_audio_bytes_to_wav(user, audio_bytes, selection, sample_rate=48000, channels=1):
+    """Save the recorded audio bytes to a WAV file and return its path."""
     audio_data, sr = sf.read(audio_bytes, dtype="int16")
     current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     output_filename = f"{user.today_path}/{selection}-{current_time}.wav"
@@ -402,6 +409,7 @@ def save_audio_bytes_to_wav(user, audio_bytes, selection, sample_rate=48000, cha
     return output_filename
 
 def get_audio_from_mic_v2(user, selection):
+    """Collect audio via Streamlit input and return the bytes object."""
     # Collect voice bytes data from audio_recorder
     audio_bytes_io = st.audio_input("マイクのアイコンをクリックして、録音しましょう！", key='audio_input')
     if audio_bytes_io:
@@ -413,6 +421,7 @@ def get_audio_from_mic_v2(user, selection):
     return None
 
 def course_navigation(my_grid, courses):
+    """Render lesson navigation controls and return the active lesson label."""
     # my_grid is the grid element of streamlit_exras
     # Initialize session state for course index
     if 'lesson_index' not in st.session_state:
@@ -446,6 +455,7 @@ def course_navigation(my_grid, courses):
     return current_course
 
 def save_scores_to_json(user, lesson_index, scores_history):
+    """Persist per-lesson score history to JSON."""
     scores_dir = os.path.join(user.today_path, "scores")
     if not os.path.exists(scores_dir):
         os.makedirs(scores_dir)
@@ -657,6 +667,7 @@ def plot_detail_scores(data):
     return chart
 
 def plot_score_history():
+    """Render score history charts for the current lesson."""
     if 'scores_history' not in st.session_state:
         st.warning("まだ学習記録がありません")
         return
@@ -740,6 +751,7 @@ def initialize_lesson_state(user, lesson_index):
 
 # layout of learning page
 def main():
+    """Render the main learning page UI."""
     if st.session_state.user is None:
         st.warning("No user is logined! Something wrong happened!")
     # reset the ai_intial_input to None for state control    

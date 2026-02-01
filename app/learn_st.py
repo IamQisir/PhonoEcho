@@ -9,6 +9,7 @@ from streamlit_extras.customize_running import center_running
 from time import sleep
 
 def audio_page():
+    """Render a simple audio recorder demo with waveform plotting."""
     col1, col2 = st.columns([0.3, 0.7])
     with col1:
         with st.container(border=True):

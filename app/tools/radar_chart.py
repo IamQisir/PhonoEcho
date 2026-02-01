@@ -27,8 +27,10 @@ def radar_factory(num_vars, frame='circle'):
     theta = np.linspace(0, 2*np.pi, num_vars, endpoint=False)
 
     class RadarTransform(PolarAxes.PolarTransform):
+        """Polar transform that interpolates gridline paths for radar charts."""
 
         def transform_path_non_affine(self, path):
+            """Interpolate path segments to keep gridlines straight."""
             # Paths with non-unit interpolation steps correspond to gridlines,
             # in which case we force interpolation (to defeat PolarTransform's
             # autoconversion to circular arcs).
@@ -37,11 +39,13 @@ def radar_factory(num_vars, frame='circle'):
             return Path(self.transform(path.vertices), path.codes)
 
     class RadarAxes(PolarAxes):
+        """Custom polar axes that draw closed radar chart lines."""
 
         name = 'radar'
         PolarTransform = RadarTransform
 
         def __init__(self, *args, **kwargs):
+            """Initialize axes and set zero angle to the top."""
             super().__init__(*args, **kwargs)
             # rotate plot such that the first axis is at the top
             self.set_theta_zero_location('N')
@@ -57,6 +61,7 @@ def radar_factory(num_vars, frame='circle'):
                 self._close_line(line)
 
         def _close_line(self, line):
+            """Ensure lines are closed by repeating the first point."""
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:
@@ -65,9 +70,11 @@ def radar_factory(num_vars, frame='circle'):
                 line.set_data(x, y)
 
         def set_varlabels(self, labels):
+            """Set the angular grid labels for each variable."""
             self.set_thetagrids(np.degrees(theta), labels)
 
         def _gen_axes_patch(self):
+            """Create the background patch based on frame shape."""
             # The Axes patch must be centered at (0.5, 0.5) and of radius 0.5
             # in axes coordinates.
             if frame == 'circle':
@@ -79,6 +86,7 @@ def radar_factory(num_vars, frame='circle'):
                 raise ValueError("Unknown value for 'frame': %s" % frame)
 
         def _gen_axes_spines(self):
+            """Generate axis spines for circle or polygon frames."""
             if frame == 'circle':
                 return super()._gen_axes_spines()
             elif frame == 'polygon':
@@ -100,6 +108,7 @@ def radar_factory(num_vars, frame='circle'):
 
 
 def example_data():
+    """Return sample data for demonstrating radar charts."""
     # The following data is from the Denver Aerosol Sources and Health study.
     # See doi:10.1016/j.atmosenv.2008.12.017
     #

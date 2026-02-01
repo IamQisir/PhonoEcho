@@ -4,5 +4,6 @@ from yaml.loader import SafeLoader
 
 
 def logout():
+    """Clear authentication state and rerun the app."""
     st.session_state['authentication_status'] = None
     st.rerun()

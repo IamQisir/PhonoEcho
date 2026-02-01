@@ -4,7 +4,9 @@ import time
 import pandas as pd
 
 class AIChat:
+    """Gemini-backed chat helper for pronunciation feedback."""
     def __init__(self):
+        """Configure the Gemini client and initialize prompt state."""
         genai.configure(api_key=st.secrets["Gemini"]["GOOGLE_API_KEY"])
         self.model = genai.GenerativeModel("gemini-pro")
         self.prompt = ""
@@ -47,6 +49,7 @@ class AIChat:
         return "\n".join(error_summary)
 
     def stream_generator(self, response):
+        """Yield streaming content chunks while collecting the full response."""
         # used to save the full response in a streaming mode
         full_response = ""
         for chunk in response:
@@ -57,6 +60,7 @@ class AIChat:
                 yield new_content
 
     def initial_output(self, error_data):
+        """Generate the initial response from assessment errors."""
         formatted_errors = self.format_errors_for_gemini(error_data)
         if not formatted_errors:
             return None
@@ -71,6 +75,7 @@ class AIChat:
 
 # Example usage in Streamlit app
 def main():
+    """Run the Streamlit chat UI for the Gemini assistant."""
     st.title("AI Chatbox")
 
     # Initialize chat history
@@ -82,6 +87,7 @@ def main():
 
     # Show chat history
     def show_history():
+        """Render prior chat messages from session state."""
         for message in st.session_state.messages:
             if message is not None:
                 with st.chat_message(message["role"]):
@@ -106,6 +112,7 @@ def main():
             st.markdown(st.session_state.initial_response)
 
     def chat_bot():    
+        """Handle user input and stream assistant replies."""
         # React to user input
         if prompt := st.chat_input("What is up?"):
             # Display user message in chat message container

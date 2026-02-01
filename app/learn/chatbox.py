@@ -8,12 +8,14 @@ the file can not run any more
 """
 
 def show_history():
+    """Render prior chat messages from session state."""
     for message in st.session_state.messages:
         if message is not None:
             with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
 def main():
+    """Run the deprecated chatbox UI."""
     st.title("エコー発音先生🤖🧠🇦🇮😎")
 
     # Initialize chat history
@@ -44,6 +46,7 @@ def main():
         
 
     def chat_bot():    
+        """Handle user input and stream assistant responses."""
         # React to user input
         if prompt := st.chat_input("聞きたい内容を入れてください"):
             # Display user message in chat message container
@@ -66,6 +69,7 @@ def main():
     st.session_state['ai_initial_input'] = None
 
 def ai_chat_tab():
+    """Render the chat tab UI for the learning page."""
     # Initialize chat history
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -94,6 +98,7 @@ def ai_chat_tab():
         
 
     def chat_bot():    
+        """Handle user input and stream assistant responses."""
         # React to user input
         if prompt := st.chat_input("聞きたい内容を入れてください"):
             # Display user message in chat message container
