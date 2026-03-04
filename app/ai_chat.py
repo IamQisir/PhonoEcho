@@ -75,7 +75,7 @@ class AIChat:
         
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4.1-nano",
                 messages=[
                     {"role": "system", "content": "You are a helpful English pronunciation tutor."},
                     {"role": "user", "content": self.prompt}

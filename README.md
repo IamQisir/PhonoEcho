@@ -63,14 +63,12 @@ database/
 ```
 
 ## Setup
-1) Create and activate a virtual environment.
+1) Create and activate a virtual environment. 
 2) Install dependencies.
 
 Example:
 ```
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+conda env create -f environment.yml -n myenvname
 ```
 
 ## Secrets Configuration
@@ -94,7 +92,7 @@ SUBSCRIPTION_KEY = "..."
 Notes:
 - Azure Speech is required for pronunciation assessment.
 - Azure OpenAI and Gemini are optional, but those features will not work without keys.
-- Azure Avatar is only needed for the avatar synthesis tool.
+- Azure Avatar is only needed for the avatar synthesis tool which is not used in this project.
 
 ## Running the App
 Main app:
