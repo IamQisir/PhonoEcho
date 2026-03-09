@@ -25,6 +25,7 @@ model = genai.GenerativeModel('gemini-pro')
 
 # Function to get color based on score
 def get_color(score):
+    """Return the color."""
     if score >= 90:
         return '#00ff00'
     elif score >= 75:
@@ -36,6 +37,7 @@ def get_color(score):
 
 # Function to create radar chart
 def create_radar_chart(pronunciation_result):
+    """Create the radar chart."""
     print(f"pronunciation_result 结构: {json.dumps(pronunciation_result, indent=2)}")
 
     overall_assessment = pronunciation_result['NBest'][0]['PronunciationAssessment']
@@ -70,6 +72,7 @@ def create_radar_chart(pronunciation_result):
     return fig
 
 def create_waveform_plot(audio_file, pronunciation_result):
+    """Create the waveform plot."""
     y, sr = librosa.load(audio_file)
     duration = len(y) / sr
     
@@ -111,6 +114,7 @@ def create_waveform_plot(audio_file, pronunciation_result):
     return fig
 
 def pronunciation_assessment(audio_file, reference_text):
+    """Handle pronunciation assessment."""
     print("进入 pronunciation_assessment 函数")
     global attempts
     
@@ -151,10 +155,11 @@ def pronunciation_assessment(audio_file, reference_text):
         print(f"在 pronunciation_assessment 函数中捕获到异常: {str(e)}")
         import traceback
         traceback.print_exc()
-        raise  # 重新抛出异常，以便在 main 函数中捕获
+        raise  # Re-raise the exception so it can be handled in main()
 
 # Function to create error statistics table
 def create_error_table(pronunciation_result):
+    """Create the error table."""
     error_types = {
         '省略 (Omission)': 0,                 # Omission
         '挿入 (Insertion)': 0,                # Insertion
@@ -181,13 +186,14 @@ def create_error_table(pronunciation_result):
             elif error_type == 'Monoton':
                 error_types['単調 (Monoton)'] += 1
     
-    # 创建 DataFrame
+    # Create a DataFrame
     df = pd.DataFrame(list(error_types.items()), columns=['エラータイプ', '回数'])
     
     print(df)
     return df
 
 def creat_syllable_table(pronunciation_result):
+    """Handle creat syllable table."""
     output = """
     <style>
         table { border-collapse: collapse; width: 100%; }
@@ -220,6 +226,7 @@ def creat_syllable_table(pronunciation_result):
 
 # Function to respond to chatbot
 def ai_respond(message, chat_history):
+        """Handle ai respond."""
         global model
         bot_message = model.generate_content(message).text
         # chat_history contains all the previous messages
@@ -229,6 +236,7 @@ def ai_respond(message, chat_history):
 
 def main(audio_file, reference_text):
     # resample the audio to 16kHz
+    """Run the main application flow."""
     y, sr = librosa.load(audio_file, sr=16000)
     # save the resampled audio
     new_audio_file = 'resampled_audio.wav'

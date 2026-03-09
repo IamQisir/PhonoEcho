@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 def save_audio_file(base_dir, audio_data, sentence_num):
+    """Save the audio file."""
     try:
         if not audio_data:
             st.warning("録音がありません。録音してください。", icon="⚠️")
@@ -24,6 +25,7 @@ def save_audio_file(base_dir, audio_data, sentence_num):
         return None
 
 def create_user_directory(romaji):
+    """Create the user directory."""
     try:
         # Create base directory if it doesn't exist
         base_dir = os.path.join("database", "elicited_immitation", romaji)

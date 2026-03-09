@@ -18,6 +18,7 @@ attempts = []
 error_types = defaultdict(lambda: defaultdict(int))
 
 def get_color(score):
+    """Return the color."""
     if score >= 90:
         return '#00ff00'
     elif score >= 75:
@@ -28,6 +29,7 @@ def get_color(score):
         return '#ff0000'
 
 def create_radar_chart(scores_list: list):
+    """Create the radar chart."""
     categories = list(scores_list[0].keys())
     
     fig, ax = plt.subplots(figsize=(6, 4), subplot_kw=dict(projection='polar'))
@@ -58,6 +60,7 @@ def create_radar_chart(scores_list: list):
     return f'<img src="data:image/png;base64,{img_str}" alt="Radar Chart">'
 
 def create_waveform_plot(audio, words):
+    """Create the waveform plot."""
     if isinstance(audio, str):
         y, sr = librosa.load(audio)
     else:
@@ -68,34 +71,34 @@ def create_waveform_plot(audio, words):
     fig, ax = plt.subplots(figsize=(12, 4))
     times = np.linspace(0, duration, num=len(y))
     
-    # 绘制基础波形
+    # Draw the base waveform
     ax.plot(times, y, color='gray', alpha=0.5)
     
     for word in words:
         if word['PronunciationAssessment']['ErrorType'] == 'Omission':
             continue
-        start_time = word['Offset'] / 10000000  # 转换为秒
+        start_time = word['Offset'] / 10000000  # Convert to seconds
         word_duration = word['Duration'] / 10000000
         end_time = start_time + word_duration
         
-        # 获取这个时间范围内的波形数据
+        # Get waveform data for this time range
         start_idx = int(start_time * sr)
         end_idx = int(end_time * sr)
         word_y = y[start_idx:end_idx]
         word_times = times[start_idx:end_idx]
         
-        # 根据准确度评分获取颜色
+        # Choose a color based on the accuracy score
         score = word['PronunciationAssessment']['AccuracyScore']
         color = get_color(score)
         
-        # 绘制这个单词的波形，使用评分对应的颜色
+        # Draw this word's waveform using the score-based color
         ax.plot(word_times, word_y, color=color)
         
-        # 添加单词标签
+        # Add the word label
         ax.text((start_time + end_time) / 2, ax.get_ylim()[0], word['Word'], 
                 ha='center', va='bottom', fontsize=8, rotation=45)
         
-        # 添加垂直分隔线
+        # Add a vertical separator line
         ax.axvline(x=start_time, color='gray', linestyle='--', alpha=0.5)
     
     ax.set_xlabel('Time (seconds)')
@@ -115,6 +118,7 @@ def create_waveform_plot(audio, words):
     return f'<img src="data:image/png;base64,{img_str}" alt="Waveform Plot">'
 
 def analyze_errors(pronunciation_result):
+    """Analyze the errors."""
     words = pronunciation_result['NBest'][0]['Words']
     errors = defaultdict(int)
     for word in words:
@@ -128,6 +132,7 @@ def analyze_errors(pronunciation_result):
     return dict(errors)
 
 def track_progress(attempts):
+    """Track the progress."""
     progress = {
         "improved": [],
         "not_improved": [],
@@ -150,6 +155,7 @@ def track_progress(attempts):
     return progress
 
 def save_progress(attempts, error_types):
+    """Save the progress."""
     data = {
         "attempts": attempts,
         "error_types": dict(error_types)
@@ -158,6 +164,7 @@ def save_progress(attempts, error_types):
         json.dump(data, f)
 
 def create_waveform_plot(audio, words):
+    """Create the waveform plot."""
     if isinstance(audio, str):
         y, sr = librosa.load(audio)
     else:
@@ -168,7 +175,7 @@ def create_waveform_plot(audio, words):
     fig, ax = plt.subplots(figsize=(12, 4))
     times = np.linspace(0, duration, num=len(y))
     
-    # 绘制基础波形
+    # Draw the base waveform
     ax.plot(times, y, color='gray', alpha=0.5)
     
     for word in words:
@@ -196,6 +203,7 @@ def create_waveform_plot(audio, words):
 
 
 def create_waveform_plot(audio, words):
+    """Create the waveform plot."""
     if isinstance(audio, str):
         y, sr = librosa.load(audio)
     else:
@@ -206,11 +214,11 @@ def create_waveform_plot(audio, words):
     fig, ax = plt.subplots(figsize=(12, 4))
     times = np.linspace(0, duration, num=len(y))
     
-    # 绘制基础波形
+    # Draw the base waveform
     ax.plot(times, y, color='gray', alpha=0.5)
     
     for word in words:
-        # 模拟时间跨度，使用索引和持续时间
+        # Simulate a time span using the index and duration
         start_time = 0
         end_time = (len(y) / len(words)) / sr
         if word['error_type'] == 'Omission':
@@ -236,11 +244,12 @@ def create_waveform_plot(audio, words):
     return f'<img src="data:image/png;base64,{img_str}" alt="Waveform Plot">'
 
 def pronunciation_assessment(audio, reference_text):
+    """Handle pronunciation assessment."""
     try:
         # Setup the subscription info for the Speech Service:
         speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('SPEECH_KEY'), region=os.environ.get('SPEECH_REGION'))
         
-        # 将音频数据写入临时文件
+        # Write the audio data to a temporary file
         sample_rate, audio_data = audio
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio_file:
             sf.write(temp_audio_file.name, audio_data, sample_rate)
@@ -261,21 +270,21 @@ def pronunciation_assessment(audio, reference_text):
         if result.reason == speechsdk.ResultReason.RecognizedSpeech:
             pronunciation_result = speechsdk.PronunciationAssessmentResult(result)
             
-            # 提取可用属性
+            # Extract available attributes
             accuracy_score = pronunciation_result.accuracy_score
             completeness_score = pronunciation_result.completeness_score
             fluency_score = pronunciation_result.fluency_score
             pronunciation_score = pronunciation_result.pronunciation_score
             prosody_score = pronunciation_result.prosody_score
             
-            # 调试信息，打印每个 word 对象的属性
+            # Debug output: print the attributes of each word object
             for word in pronunciation_result.words:
                 print(word.word, dir(word))
             
-            # 提取 word_scores
+            # Extract word_scores
             word_scores = {word.word: word.accuracy_score for word in pronunciation_result.words}
             
-            # 获取评分
+            # Get the scores
             radar_chart = create_radar_chart([{
                 'Accuracy': accuracy_score,
                 'Completeness': completeness_score,
@@ -296,7 +305,7 @@ def pronunciation_assessment(audio, reference_text):
             progress = track_progress(attempts)
             save_progress(attempts, error_types)
             
-            # 删除临时文件
+            # Delete the temporary file
             os.unlink(audio_path)
             
             error_summary = f"<h3>Error Summary (Attempt {len(attempts)}):</h3>"

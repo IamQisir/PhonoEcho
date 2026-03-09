@@ -15,6 +15,7 @@ with gr.Blocks() as demo:
     clear = gr.ClearButton([msg, chatbot])
 
     def respond(message, chat_history):
+        """Handle respond."""
         global model
         bot_message = model.generate_content(message).text
         # chat_history contains all the previous messages

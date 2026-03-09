@@ -5,6 +5,7 @@ import time
 
 async def haptic_demo():
     # 1. Initialization
+    """Handle haptic demo."""
     app_id = "your_app_id"
     api_key = "your_api_key"
     app_name = "Hello, bHaptics!"

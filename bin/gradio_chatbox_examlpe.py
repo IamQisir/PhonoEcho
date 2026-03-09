@@ -14,9 +14,11 @@ with gr.Blocks() as demo:
     clear = gr.Button("Clear")
 
     def user(user_message, history):
+        """Handle user."""
         return "", history + [[user_message, None]]
 
     def bot(history):
+        """Handle bot."""
         bot_message = model.generate_content(history[-1][0]).text
         time.sleep(2)
         history[-1][1] = bot_message

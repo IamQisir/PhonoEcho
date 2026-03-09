@@ -9,6 +9,7 @@ st.set_page_config(layout="wide", page_icon="logo/done_all.png")
 
 # Function to load user_info from a JSON file
 def load_user_info():
+    """Load the user info."""
     try:
         with open("database/all_users/users_info.json", "r") as f:
             return json.load(f)
@@ -17,6 +18,7 @@ def load_user_info():
 
 # Function to save user_info to a JSON file
 def save_user_info(user_info):
+    """Save the user info."""
     with open("database/all_users/users_info.json", "w") as f:
         json.dump(user_info, f, indent=4)
     
@@ -55,6 +57,7 @@ if "learning_data" not in st.session_state:
     }
 
 def login():
+    """Log in the current user."""
     _, cent_co, _ = st.columns([0.2, 0.7, 0.1])
     with cent_co:
         with open("logo/PhonoEcho.gif", "rb") as f:
@@ -80,6 +83,7 @@ def login():
                 st.switch_page(learning_page)
             
 def register():
+    """Register the item."""
     _, cent_co, _ = st.columns([0.2, 0.7, 0.1])
     with cent_co:
         with open("logo/EchoLearn.gif", "rb") as f:
@@ -106,6 +110,7 @@ def register():
 
 def logout():
     # After logging out, delete all the keys of st.session_state
+    """Log out the current user."""
     for key in st.session_state.keys():
         del st.session_state[key]
     st.rerun()
@@ -117,7 +122,7 @@ logout_page = st.Page(logout, title="ログアウト", icon=":material/logout:")
 
 # Learning-related Page
 learning_page = st.Page("../app/learn/echo_learning.py", title='フォノエコーラーニング', icon="🔥")
-# chatbox_page = st.Page("../app/learn/chatbox.py", title='フォノエコー発音先生', icon="🚨")
+# chatbox_page = st.Page("../app/learn/chatbox.py", title="PhonoEcho Pronunciation Coach", icon="🚨")
 
 # Set the navigation of sidebar
 if st.session_state.logged_in:

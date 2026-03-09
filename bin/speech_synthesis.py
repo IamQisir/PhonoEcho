@@ -11,6 +11,7 @@ speech_config.speech_synthesis_voice_name='en-US-AndrewMultilingualNeural'
 speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=speech_config, audio_config=audio_config)
 
 def text_to_speech(text: str, file_path: str = None):
+    """Handle text to speech."""
     speech_synthesis_result = speech_synthesizer.speak_text_async(text).get()
     audio_stream = speechsdk.AudioDataStream(speech_synthesis_result)
     # audio_file_path = "../outputs_v2/gemini_source_output.mp3" 
@@ -29,6 +30,7 @@ def text_to_speech(text: str, file_path: str = None):
 
 
 def main(): 
+    """Run the main application flow."""
     text = "Hello, I am OpenVoice. How can I help you?"
     text_to_speech(text, 'output.mp3')
 

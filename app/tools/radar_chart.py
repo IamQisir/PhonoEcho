@@ -28,20 +28,24 @@ def radar_factory(num_vars, frame='circle'):
 
     class RadarTransform(PolarAxes.PolarTransform):
 
+        """Represent the Radartransform."""
         def transform_path_non_affine(self, path):
             # Paths with non-unit interpolation steps correspond to gridlines,
             # in which case we force interpolation (to defeat PolarTransform's
             # autoconversion to circular arcs).
+            """Handle transform path non affine."""
             if path._interpolation_steps > 1:
                 path = path.interpolated(num_vars)
             return Path(self.transform(path.vertices), path.codes)
 
     class RadarAxes(PolarAxes):
 
+        """Represent the Radaraxes."""
         name = 'radar'
         PolarTransform = RadarTransform
 
         def __init__(self, *args, **kwargs):
+            """Handle init."""
             super().__init__(*args, **kwargs)
             # rotate plot such that the first axis is at the top
             self.set_theta_zero_location('N')
@@ -57,6 +61,7 @@ def radar_factory(num_vars, frame='circle'):
                 self._close_line(line)
 
         def _close_line(self, line):
+            """Handle close line."""
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:
@@ -65,11 +70,13 @@ def radar_factory(num_vars, frame='circle'):
                 line.set_data(x, y)
 
         def set_varlabels(self, labels):
+            """Set the varlabels."""
             self.set_thetagrids(np.degrees(theta), labels)
 
         def _gen_axes_patch(self):
             # The Axes patch must be centered at (0.5, 0.5) and of radius 0.5
             # in axes coordinates.
+            """Handle gen axes patch."""
             if frame == 'circle':
                 return Circle((0.5, 0.5), 0.5)
             elif frame == 'polygon':
@@ -79,6 +86,7 @@ def radar_factory(num_vars, frame='circle'):
                 raise ValueError("Unknown value for 'frame': %s" % frame)
 
         def _gen_axes_spines(self):
+            """Handle gen axes spines."""
             if frame == 'circle':
                 return super()._gen_axes_spines()
             elif frame == 'polygon':
@@ -119,6 +127,7 @@ def example_data():
     #  2)Inclusion of gas-phase specie carbon monoxide (CO)
     #  3)Inclusion of gas-phase specie ozone (O3).
     #  4)Inclusion of both gas-phase species is present...
+    """Handle example data."""
     data = [
         ['Sulfate', 'Nitrate', 'EC', 'OC1', 'OC2', 'OC3', 'OP', 'CO', 'O3'],
         ('Basecase', [

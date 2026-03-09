@@ -12,6 +12,7 @@ connected_positions = set([])
 play_finished_event = threading.Event()
 
 class BhapticsPosition(Enum):
+    """Represent the Bhapticsposition."""
     Vest = "Vest"
     VestFront = "VestFront"
     VestBack = "VestBack"
@@ -26,7 +27,9 @@ class BhapticsPosition(Enum):
     GloveR = "GloveR"
 
 class WebSocketReceiver(WebSocket):
+    """Represent the Websocketreceiver."""
     def recv_frame(self):
+        """Handle recv frame."""
         global active_keys
         global connected_positions
         frame = super().recv_frame()
@@ -51,6 +54,7 @@ class WebSocketReceiver(WebSocket):
 
 
 def thread_function(name):
+    """Handle thread function."""
     while True:
         if ws is not None:
             ws.recv_frame()
@@ -58,6 +62,7 @@ def thread_function(name):
 
 
 def initialize():
+    """Initialize the component."""
     global ws
     try:
         ws = create_connection("ws://localhost:15881/v2/feedbacks",
@@ -74,24 +79,29 @@ def initialize():
 
 
 def destroy():
+    """Clean up the component."""
     if ws is not None:
         ws.close()
 
 
 def is_playing():
+    """Handle is playing."""
     return len(active_keys) > 0
 
 
 def is_playing_key(key):
+    """Handle is playing key."""
     return key in active_keys
 
 
 # position Vest Head ForeamrL ForearmR HandL HandR FootL FootR
 def is_device_connected(position):
+    """Handle is device connected."""
     return position in connected_positions
 
 
 def register(key, file_directory):
+    """Register the item."""
     json_data = open(file_directory).read()
 
     # print(json_data)
@@ -117,6 +127,7 @@ def register(key, file_directory):
 
 
 def submit_registered(key):
+    """Submit the registered."""
     request = {
         "Submit": [{
             "Type": "key",
@@ -136,6 +147,7 @@ def submit_registered_with_option(
         rotation_option):
     # scaleOption: {"intensity": 1, "duration": 1}
     # rotationOption: {"offsetAngleX": 90, "offsetY": 0}
+    """Submit the registered with option."""
     request = {
         "Submit": [{
             "Type": "key",
@@ -154,6 +166,7 @@ def submit_registered_with_option(
 
 
 def submit(key, frame):
+    """Submit the request."""
     request = {
         "Submit": [{
             "Type": "frame",
@@ -168,6 +181,7 @@ def submit(key, frame):
 
 
 def submit_dot(key, position, dot_points, duration_millis):
+    """Submit the dot."""
     front_frame = {
         "position": position,
         "dotPoints": dot_points,
@@ -176,6 +190,7 @@ def submit_dot(key, position, dot_points, duration_millis):
     submit(key, front_frame)
 
 def submit_path(key, position, path_points, duration_millis):
+    """Submit the path."""
     front_frame = {
         "position": position,
         "pathPoints": path_points,
@@ -184,5 +199,6 @@ def submit_path(key, position, path_points, duration_millis):
     submit(key, front_frame)
 
 def __submit(json_str):
+    """Submit the request."""
     if ws is not None:
         ws.send(json_str)

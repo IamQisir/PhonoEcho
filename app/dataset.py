@@ -7,6 +7,7 @@ class Dataset:
     root_path = "database/learning_database/"
     def __init__(self, user_name:str) -> None:
         # create the folder for the specific user
+        """Handle init."""
         self.path = self.root_path + f"{user_name}/"
         # name of text and video
         self.text_data = []
@@ -15,12 +16,14 @@ class Dataset:
     def build_dirs(self):
         # build text and video folder for a user
         # this method seems a little meaningless
+        """Handle build dirs."""
         try:
             os.makedirs(self.path, exist_ok=False)
         except:
             print("Failed to build the directories!")
 
     def load_data(self):
+        """Load the data."""
         for root, dirs, files in os.walk(self.path):
             for f in files:
                 if f.endswith('.txt'):

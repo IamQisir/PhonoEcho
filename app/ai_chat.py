@@ -3,7 +3,9 @@ import streamlit as st
 from openai import AzureOpenAI
 
 class AIChat:
+    """Represent the Aichat."""
     def __init__(self):
+        """Handle init."""
         try:
             self.client = AzureOpenAI(
                 azure_endpoint=st.secrets['AzureGPT']["AZURE_OPENAI_ENDPOINT"],
@@ -97,7 +99,7 @@ class AIChat:
         
         try:
             response = self.client.chat.completions.create(
-                model="gpt-5-mini",  # Update with your actual deployment name
+                model="gpt-4.1-nano",  # Update with your actual deployment name
                 messages=[
                     {"role": "system", "content": "You are a helpful English pronunciation tutor."},
                     {"role": "user", "content": self.prompt}

@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def plot_function():
-    # 创建一个示例图像
+    # Create a sample image
+    """Handle plot function."""
     x = np.linspace(0, 2 * np.pi, 100)
     y = np.sin(x)
 
@@ -12,7 +13,7 @@ def plot_function():
     
     return fig
 
-# 使用 gr.Plot 组件直接显示 Matplotlib 图像
+# Display the Matplotlib image directly with the gr.Plot component
 demo = gr.Interface(fn=plot_function, inputs=[], outputs=gr.Plot())
 
 demo.launch()

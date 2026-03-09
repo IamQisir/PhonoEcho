@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 
 def save_audio_file(base_dir, audio_data, sentence_num):
+    """Save the audio file."""
     try:
         if not audio_data:
             st.warning("録音がありません。録音してください。", icon="⚠️")
@@ -24,6 +25,7 @@ def save_audio_file(base_dir, audio_data, sentence_num):
         return None
 
 def create_user_directory(romaji):
+    """Create the user directory."""
     try:
         # Create base directory if it doesn't exist
         base_dir = os.path.join("database", "pre_experiment", romaji)
@@ -103,4 +105,4 @@ for i, sentence in enumerate(sentences):
 # Check if all recordings are complete
 if all(count <= 0 for count in user_data["sentence_counts"]):
     st.success("データの収集は、終了でございます。どうぞよろしくお願いいたします🫡")
-    # st.markdown("[アンケート🫡](https://docs.google.com/forms/d/e/1FAIpQLSczmtjqEsaVT6BizQI8N8xzHsicAikQHRaknm3qL2fGo7Vq1Q/viewform?usp=dialog)")
+    # st.markdown("[Questionnaire 🫡](https://docs.google.com/forms/d/e/1FAIpQLSczmtjqEsaVT6BizQI8N8xzHsicAikQHRaknm3qL2fGo7Vq1Q/viewform?usp=dialog)")

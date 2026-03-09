@@ -50,6 +50,7 @@ st.session_state.just_loaded = False
 
 # Function to play the haptic feedback
 def play_tactglove(lesson_index):
+    """Play the tactglove."""
     player.submit_registered(f"LeftGlove{lesson_index}")
     player.play_finished_event.wait()
 
@@ -67,6 +68,7 @@ def delay_play_tactglove(delay, lesson_index):
 
 # Function to get color based on score
 def get_color(score):
+    """Return the color."""
     if score >= 90:
         # green
         return "#00ff00"
@@ -158,6 +160,7 @@ def create_radar_chart(pronunciation_result):
     return fig
 
 def create_waveform_plot(audio_file, pronunciation_result):
+    """Create the waveform plot."""
     y, sr = librosa.load(audio_file)
     duration = len(y) / sr
 
@@ -211,11 +214,11 @@ def create_waveform_plot(audio_file, pronunciation_result):
                 )
                 phoneme_color = get_color(phoneme_score)
 
-                # 绘制音节的垂直线
+                # Draw vertical lines for the phoneme boundaries
                 # ax.axvline(x=phoneme_start, color='black', linestyle='--', alpha=0.5)
                 # ax.axvline(x=phoneme_end, color='black', linestyle='--', alpha=0.5)
 
-                # 添加音节 Phoneme 标签
+                # Add the phoneme label
                 ax.text(
                     phoneme_start,
                     ax.get_ylim()[1],
@@ -235,6 +238,7 @@ def create_waveform_plot(audio_file, pronunciation_result):
     return fig
 
 def pronunciation_assessment(audio_file, reference_text):
+    """Handle pronunciation assessment."""
     print("進入 pronunciation_assessment 関数")
 
     # Be Aware!!! We are using free keys here but nonfree keys in Avatar
@@ -368,6 +372,7 @@ def create_doughnut_chart(data, title):
     )
 
 def create_syllable_table(pronunciation_result):
+    """Create the syllable table."""
     output = """
     <style>
         table { border-collapse: collapse; width: 100%; }
@@ -413,6 +418,7 @@ def get_audio_from_mic(user, selection) -> str:
         audio_bytes, output_filename, sample_rate=sample_rate, channels=1
     ):
         # Convert audio_bytes to a numpy array
+        """Save the audio bytes to wav."""
         audio_data, sr = sf.read(io.BytesIO(audio_bytes), dtype="int16")
         # Save the numpy array to a .wav file
         sf.write(
@@ -433,6 +439,7 @@ def get_audio_from_mic(user, selection) -> str:
         return file_name
 
 def save_audio_bytes_to_wav(user, audio_bytes, selection, sample_rate=48000, channels=1):
+    """Save the audio bytes to wav."""
     audio_data, sr = sf.read(audio_bytes, dtype="int16")
     current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     output_filename = f"{user.today_path}/{selection}-{current_time}.wav"
@@ -442,6 +449,7 @@ def save_audio_bytes_to_wav(user, audio_bytes, selection, sample_rate=48000, cha
 
 def get_audio_from_mic_v2(user, selection):
     # Collect voice bytes data from audio_recorder
+    """Return the audio from mic v2."""
     audio_bytes_io = st.audio_input("マイクのアイコンをクリックして、録音しましょう！", key='audio_input')
     if audio_bytes_io:
         current_time = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -455,6 +463,7 @@ def course_navigation(my_grid, courses):
     # the first row of my_grid
     # my_grid is the grid element of streamlit_exras
     # Initialize session state for course index
+    """Handle course navigation."""
     if 'lesson_index' not in st.session_state:
         st.session_state.lesson_index = 0
     user = st.session_state.user
@@ -485,12 +494,13 @@ def course_navigation(my_grid, courses):
     #     questionnaire_address = questionnaire_lst[0]
     # elif st.session_state.lesson_index == 1:
     #     questionnaire_address = questionnaire_lst[1]
-    # my_grid.info(f"{current_course}を練習しましょう😆👉 10回の練習が終わったら、アンケートを回答してください！[アンケート🫡]({questionnaire_address})")
+    # my_grid.info(f"Practice {current_course} 😆👉 After 10 attempts, please complete the questionnaire! [Questionnaire 🫡]({questionnaire_address})")
     my_grid.info("10回の練習は終わりましたら、実験実施者を呼びかけてください！")
     return current_course
 
 def video_and_tactglove(my_grid, text_content, selected_lessons):
     # Video player
+    """Handle video and tactglove."""
     video_html = f"""
         <div style="display: flex; justify-content: center; align-items: center;">
             <video id="myVideo" width="640" height="360" controls>
@@ -525,6 +535,7 @@ def video_and_tactglove(my_grid, text_content, selected_lessons):
     )
 
 def save_scores_to_json(user, lesson_index, scores_history):
+    """Save the scores to json."""
     scores_dir = os.path.join(user.today_path, "scores")
     if not os.path.exists(scores_dir):
         os.makedirs(scores_dir)
@@ -737,6 +748,7 @@ def plot_detail_scores(data):
 
 def plot_score_history():
     # Check if learning_state exists and has scores_history
+    """Handle plot score history."""
     if ('learning_state' not in st.session_state or 
         'scores_history' not in st.session_state.learning_state):
         st.warning("まだ学習記録がありません")
@@ -840,6 +852,7 @@ def initialize_lesson_state(user, lesson_index):
 
 # layout of learning page
 def main():
+    """Run the main application flow."""
     if st.session_state.user is None:
         st.warning("No user is logined! Something wrong happened!")
     # reset the ai_intial_input to None for state control    

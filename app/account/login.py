@@ -8,6 +8,7 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 def login():
+    """Log in the current user."""
     username = st.text_input("Username", key="username")
     password = st.text_input("Password", key="password", type="password")
     if st.button("Log in"):
@@ -18,6 +19,7 @@ def login():
             st.warning('Wrong username or password!')
 
 def logout():
+    """Log out the current user."""
     if st.button("Log out"):
         st.session_state.logged_in = False
         st.rerun()

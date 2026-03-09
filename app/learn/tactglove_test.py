@@ -24,6 +24,7 @@ if st.session_state.play_count != 0 and st.session_state.just_loaded:
 st.session_state.just_loaded = False
 
 def play_tactglove():
+    """Play the tactglove."""
     player.submit_registered("RightGlove")
     player.play_finished_event.wait()
 

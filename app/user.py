@@ -6,6 +6,7 @@ from datetime import datetime
 from datetime import date
 
 class User:
+    """Represent the User."""
     user_info_path = "database/all_users/users_info.json"
     info_folder = "database/all_users/"
     user_info = {}
@@ -15,6 +16,7 @@ class User:
         user_info = json.load(f)
     
     def __init__(self, name:str, password:str) -> None:
+        """Handle init."""
         self.name = name
         # hash the password to ensure the cybersecurity
         self.password = User.hash_password(password)
@@ -30,10 +32,12 @@ class User:
     
     def __hash__(self):
         # suppose user's name is unique
+        """Handle hash."""
         return hash(self.name)
 
     def save_to_user_info(self) -> None:
         # update the user_info like registering a new user
+        """Save the to user info."""
         User.user_info[self.name] = {
             "password": self.password,
             "history": []
@@ -45,6 +49,7 @@ class User:
         # save all the user's practice history
         # if the folder already exists, don't rewrite it 
         # create the history folder of today within the folder of self.practice_history
+        """Save the pron history."""
         result_file_path = f"{self.today_path}{selection}-{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"
         with open(result_file_path, 'w') as f:
             json.dump(pronunciation_result, f, indent=4)
@@ -52,6 +57,7 @@ class User:
     @classmethod
     def register(cls, name:str, password:str):
         # check if the user already existed 
+        """Register the item."""
         if name in cls.user_info:
             st.warning("ユーザーは既に存在しています!")
             return None
@@ -68,6 +74,7 @@ class User:
         return new_user
     
     def load_scores_history(self, lesson_index: int):
+        """Load the scores history."""
         scores_dir = os.path.join(self.today_path, "scores")
         json_file = os.path.join(scores_dir, "lesson_scores.json")
         
@@ -127,6 +134,7 @@ class User:
 
     @classmethod
     def login(cls, name:str, password:str):
+        """Log in the current user."""
         if name in User.user_info:
             if User.check_password(User.user_info[name]['password'], password):
                 # user's folder has been already created when in registration
@@ -135,10 +143,12 @@ class User:
         
     @staticmethod
     def hash_password(password, rounds=12):
+        """Handle hash password."""
         return bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds)).decode()
     
     @staticmethod
     def check_password(hashed_password, user_password):
+        """Handle check password."""
         return bcrypt.checkpw(user_password.encode(), hashed_password.encode())
     
 

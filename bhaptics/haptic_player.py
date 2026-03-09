@@ -34,6 +34,7 @@ from enum import Enum
 # sleep(2)
 
 class BhapticsPosition(Enum):
+    """Represent the Bhapticsposition."""
     Vest = "Vest"
     VestFront = "VestFront"
     VestBack = "VestBack"
@@ -48,7 +49,9 @@ class BhapticsPosition(Enum):
     GloveR = "GloveR"
 
 class HapticPlayer:
+    """Represent the Hapticplayer."""
     def __init__(self):
+        """Handle init."""
         try:
             self.ws = create_connection("ws://localhost:15881/v2/feedbacks")
         except:
@@ -56,6 +59,7 @@ class HapticPlayer:
             return
 
     def register(self, key, file_directory):
+        """Register the item."""
         json_data = open(file_directory).read()
 
         data = json.loads(json_data)
@@ -78,6 +82,7 @@ class HapticPlayer:
         self.ws.send(json_str)
 
     def submit_registered(self, key):
+        """Submit the registered."""
         submit = {
             "Submit": [{
                 "Type": "key",
@@ -95,6 +100,7 @@ class HapticPlayer:
             rotation_option):
         # scaleOption: {"intensity": 1, "duration": 1}
         # rotationOption: {"offsetAngleX": 90, "offsetY": 0}
+        """Submit the registered with option."""
         submit = {
             "Submit": [{
                 "Type": "key",
@@ -112,6 +118,7 @@ class HapticPlayer:
         self.ws.send(json_str)
 
     def submit(self, key, frame):
+        """Submit the request."""
         submit = {
             "Submit": [{
                 "Type": "frame",
@@ -125,6 +132,7 @@ class HapticPlayer:
         self.ws.send(json_str)
 
     def submit_dot(self, key, position, dot_points, duration_millis):
+        """Submit the dot."""
         front_frame = {
             "position": position,
             "dotPoints": dot_points,
@@ -133,6 +141,7 @@ class HapticPlayer:
         self.submit(key, front_frame)
 
     def submit_path(self, key, position, path_points, duration_millis):
+        """Submit the path."""
         front_frame = {
             "position": position,
             "pathPoints": path_points,
@@ -141,4 +150,5 @@ class HapticPlayer:
         self.submit(key, front_frame)
 
     def __del__(self):
+        """Handle del."""
         self.ws.close()

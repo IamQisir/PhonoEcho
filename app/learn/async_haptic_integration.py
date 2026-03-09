@@ -31,6 +31,7 @@ class AsyncHapticController:
     """
     
     def __init__(self, app_id: str, api_key: str, app_name: str):
+        """Handle init."""
         self.app_id = app_id
         self.api_key = api_key
         self.app_name = app_name
@@ -146,6 +147,7 @@ class SyncHapticWrapper:
     """
     
     def __init__(self, controller: AsyncHapticController):
+        """Handle init."""
         self.controller = controller
     
     def initialize(self) -> bool:
@@ -406,7 +408,7 @@ def example_integration():
         create_calibration_ui()
     
     # In your button handler (replace old threading code)
-    # if my_grid.button("多感覚学習しよう!", use_container_width=True):
+    # if my_grid.button("Start multisensory learning!", use_container_width=True):
     #     play_video_and_haptics(lesson_idx, tact_settings)
 
 
@@ -416,6 +418,7 @@ if __name__ == "__main__":
     """
     
     async def test_async_controller():
+        """Handle test async controller."""
         print("Testing Async Haptic Controller...")
         
         # Create controller

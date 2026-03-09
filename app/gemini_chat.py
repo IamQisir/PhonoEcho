@@ -4,7 +4,9 @@ import time
 import pandas as pd
 
 class AIChat:
+    """Represent the Aichat."""
     def __init__(self):
+        """Handle init."""
         genai.configure(api_key=st.secrets["Gemini"]["GOOGLE_API_KEY"])
         self.model = genai.GenerativeModel("gemini-pro")
         self.prompt = ""
@@ -48,6 +50,7 @@ class AIChat:
 
     def stream_generator(self, response):
         # used to save the full response in a streaming mode
+        """Handle stream generator."""
         full_response = ""
         for chunk in response:
             if chunk.text:
@@ -57,6 +60,7 @@ class AIChat:
                 yield new_content
 
     def initial_output(self, error_data):
+        """Handle initial output."""
         formatted_errors = self.format_errors_for_gemini(error_data)
         if not formatted_errors:
             return None
@@ -71,6 +75,7 @@ class AIChat:
 
 # Example usage in Streamlit app
 def main():
+    """Run the main application flow."""
     st.title("AI Chatbox")
 
     # Initialize chat history
@@ -82,6 +87,7 @@ def main():
 
     # Show chat history
     def show_history():
+        """Display the history."""
         for message in st.session_state.messages:
             if message is not None:
                 with st.chat_message(message["role"]):
@@ -107,6 +113,7 @@ def main():
 
     def chat_bot():    
         # React to user input
+        """Handle chat bot."""
         if prompt := st.chat_input("What is up?"):
             # Display user message in chat message container
             with st.chat_message("user"):

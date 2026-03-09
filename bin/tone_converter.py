@@ -30,6 +30,7 @@ src_path = f'{output_dir}/gemini_source_output.mp3'
 save_path = f'{output_dir}/output_crosslingual.wav'
 
 def func():
+    """Handle func."""
     input_text = input('What do you want to ask?\n')
     while input_text != '#':
         model = genai.GenerativeModel('gemini-pro')
